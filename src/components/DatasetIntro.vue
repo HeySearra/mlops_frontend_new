@@ -29,9 +29,10 @@
     <div class="table">
       <el-card shadow="never">
         <div slot="header" class="card-title">
-          <span>数据历史处理记录</span>
+          <span>可视化图</span>
         </div>
-        <el-table border tooltip-effect="dark" style="width: 100%" max-height="210" :data="history"
+        预留可视化图
+        <!-- <el-table border tooltip-effect="dark" style="width: 100%" max-height="210" :data="history"
           :row-style="{ height: '10px' }" :cell-style="{ padding: '0' }" :header-cell-style="{
             'font-size': '14px',
             color: '#778192',
@@ -65,7 +66,7 @@
             </template>
           </el-table-column>
 
-        </el-table>
+        </el-table> -->
       </el-card>
     </div>
   </div>

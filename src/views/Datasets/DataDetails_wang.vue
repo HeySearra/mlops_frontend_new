@@ -57,23 +57,8 @@
     </div>
 
     <div>
-      <el-tabs v-model="activeName" id="tab">
-        <el-tab-pane label="详情" name="first">
-          <dataset-intro :detail="detail" :id="id" :history="resultList"> </dataset-intro>
-        </el-tab-pane>
-
-        <el-tab-pane label="实验" name="second">
-          <dataset-experiment ref="Experiment" :history="resultList" :detail="detail" :id="id"></dataset-experiment>
-        </el-tab-pane>
-
-        <el-tab-pane label="自定义实验" name="third">
-          <user-defined-pre :id="id" :detail="detail" v-if="detail"></user-defined-pre>
-        </el-tab-pane>
-
-        <!-- <el-tab-pane label="视图" name="fourth">
-          <dataset-statistic :id="id"></dataset-statistic>
-        </el-tab-pane> -->
-      </el-tabs>
+      <el-divider></el-divider>
+      <dataset-intro :detail="detail" :id="id" :history="resultList"> </dataset-intro>
     </div>
 
   </div>
@@ -311,7 +296,7 @@ export default {
 
 .version-choose {
   position: absolute;
-  top: 100px;
-  right: 200px;
+  top: 130px;
+  right: 175px;
 }
 </style>
