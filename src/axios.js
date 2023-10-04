@@ -4,9 +4,10 @@ import router from "./router";
 
 
 axios.defaults.withcredentials = true;  //允许使用cookie
+var timeout = 2000;
 const http = axios.create({
     baseURL: '/api/',
-    timeout: 100000,
+    timeout: timeout,
     withCredentials: true,
 });
 
@@ -19,7 +20,7 @@ const http = axios.create({
 
 const http_vis = axios.create({
     baseURL: '/vis/',
-    timeout: 100000,
+    timeout: timeout,
     withCredentials: true,
 })
 http_vis.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'//post请求头的默认设置
@@ -27,10 +28,10 @@ http_vis.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8
 // create是创建一个全新的axios，要重新设置。
 const http_wang = axios.create({
     baseURL: '/wang/',
-    timeout: 1000000,
+    timeout: timeout,
     withCredentials: true
 })
-http_wang.defaults.timeout = 200000 //超过10s则请求超时
+http_wang.defaults.timeout = timeout //超过10s则请求超时
 http_wang.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'//post请求头的默认设置
 
 //响应拦截器
@@ -81,10 +82,10 @@ http_wang.interceptors.request.use((config) => {
 
 const http_zyq = axios.create({
     baseURL: '/zyq/v1/newOntMapping/',
-    timeout: 1000000,
+    timeout: timeout,
     withCredentials: true
 })
-http_zyq.defaults.timeout = 200000 //超过10s则请求超时
+http_zyq.defaults.timeout = timeout //超过10s则请求超时
 http_zyq.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'//post请求头的默认设置
 
 
