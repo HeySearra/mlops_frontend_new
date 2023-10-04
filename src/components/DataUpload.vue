@@ -12,24 +12,7 @@
         <el-input type="textarea" autosize placeholder="请输入数据详情介绍" v-model="datasetInfo.long_description">
         </el-input>
       </el-form-item>
-      <el-form-item label="领域" prop="area">
-        <el-select @change="selectChanged" v-model="datasetInfo.area" placeholder="请选择">
-          <el-option v-for="a in areaOptions" :key="a" :label="a" :value="a">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="时间列" prop="time_series">
-        <el-input v-model="datasetInfo.time_series"></el-input>
-      </el-form-item>
-      <el-form-item label="id列" prop="id_col">
-        <el-input v-model="datasetInfo.id_col"></el-input>
-      </el-form-item>
-      <!-- <el-form-item label="任务" :rules="[{ required: true }]">
-        <el-select v-model="datasetInfo.task" placeholder="请选择">
-          <el-option v-for="b in taskOptions" :key="b" :label="b" :value="b">
-          </el-option>
-        </el-select>
-      </el-form-item> -->
+
       <el-form-item label="文件:" prop="fileList">
         <el-upload id="upload-view" v-model="datasetInfo.file" drag multiple ref="upload" accept=".csv, .xlsx"
           :before-upload="beforeUpload" :on-preview="handlePreview" :file-list="fileList" :on-remove="handleRemoveFile"
@@ -43,147 +26,6 @@
         </el-upload>
       </el-form-item>
     </el-form>
-
-    <!--      第三步：关系表与谓词映射        -->
-    <el-container style="height: 100%; border: 1px solid #eee">
-
-      <el-main>
-        <el-card shadow="never"
-          style="width: 600px; max-width: 600px; height: 200px; overflow: scroll; overflow-x:hidden">
-          <div slot="header" style="font-size: 15px; font-weight: bold">
-            <i class="el-icon-document-copy"></i>
-            用户表中字段
-          </div>
-          <div v-if="show_head_upload">
-            <div style="display:inline;margin-right:10px; height: 100%"
-              v-for="(item, index) in tableData[handleTableIndex].fields" :key="index">
-              <!--          引入推荐           -->
-              <el-button v-if="isFieldRecommend(item)" type="warning" plain size="mini" style="margin-bottom: 8px"
-                @click="selectField(index)">{{ item }}
-              </el-button>
-              <el-button v-else type="info" plain size="mini" style="margin-bottom: 8px" @click="selectField(index)">{{
-                item }}
-              </el-button>
-            </div>
-          </div>
-          <div v-else>
-            暂未上传用户文件
-          </div>
-        </el-card>
-
-        <!--                    关系列表展示卡片                     -->
-        <el-card shadow="never" style="margin-top: 2%; width: 600px;">
-          <div slot="header" style="font-size: 15px; font-weight: bold">
-            <i class="el-icon-document-copy"></i>
-            领域特征
-            <el-tooltip class="item" effect="dark" content="请添加关系，并选择表中字段中该头/尾实体的关键属性，完成关系映射" placement="top-start">
-              <i class="el-icon-info" style="margin-left: 5px;margin-top: 3px"></i>
-            </el-tooltip>
-
-            <el-select v-model="valueMeta" value-key="fromId" collapse-tags placeholder="请选择特征"
-              @change="selectEdgeChange">
-              <div class="el-input" style="width:90%;margin-left:5%;">
-                <input type="text" placeholder="请输入" class="el-input__inner" v-model="dropDownValue"
-                  @keyup="dropDownSearch">
-              </div>
-              <el-option v-for="item in optionsMetaShow" :key="item.fromId" :label="item.fromLabel"
-                :value="item"></el-option>
-            </el-select>
-            <el-button size="small" type="primary" @click="handleMapping">推荐匹配</el-button>
-            <el-button v-if="!tableData[handleTableIndex].mappingSaved" style="float: right" type="warning"
-              icon="el-icon-plus" plain size="small" @click="addEdgeInstance">新增
-            </el-button>
-            <!-- <el-button style="float: right" type="danger" v-if="!tableData[handleTableIndex].mappingSaved"
-                icon="el-icon-delete" circle plain size="mini" @click="deleteEdgeInstance(index)"></el-button> -->
-
-          </div>
-
-          <el-table v-if="tableData[handleTableIndex].edgeInstances.length > 0"
-            :data="tableData[handleTableIndex].edgeInstances" :row-style="{ height: '40px' }"
-            :cell-style="{ padding: '1px' }" style="overflow: scroll; overflow-x:hidden; height: 500px;">
-            <!-- <el-row :gutter="20" style="margin-bottom: 20px;">
-                <el-col :span="150"></el-col>
-              </el-row> -->
-            <el-table-column label="待对齐特征" width="150">
-              <template slot-scope="scope">
-                <el-popover trigger="hover" :content="scope.row.fromName">
-                  <div slot="reference" style="margin: 0; padding: 0">
-                    <!-- 问题列显示文本 即触发Popover显示的HTML元素 -->
-                    {{ scope.row.fromLabel }}
-                  </div>
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column>
-              <template slot-scope="scope">
-                <div v-if="tableData[handleTableIndex].mappingSaved">
-                  <div v-if="scope.row.fromValue === -1">
-                    <el-tag style="margin-right: 10px" size="small"> 当前实例</el-tag>
-                  </div>
-                  <div v-else-if="scope.row.fromValue !== null">
-                    <el-tag style="margin-right: 10px" size="small"> {{ scope.row.fromValue }}
-                    </el-tag>
-                  </div>
-                </div>
-                <div v-else>
-                  <div v-if="scope.row.fromValue === -1">
-                    <el-tag style="margin-right: 10px" size="small"> 当前实例</el-tag>
-                  </div>
-                  <div v-else-if="scope.row.fromValue === null">
-                    <el-button @click="addEdge(scope.$index, 'fromValue')" icon="el-icon-plus" size="mini" plain>选择字段
-                    </el-button>
-                  </div>
-                  <div v-else>
-                    <el-tag style="margin-right: 10px" closable size="small" type="info"
-                      @close="deletePropMapping(scope.$index, 'fromValue', 0)"> {{ scope.row.fromValue }}
-                    </el-tag>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="100">
-              <template slot-scope="scope">
-                <el-button type="text" @click="deleteEdgeInstance(scope.row, scope.$index)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div v-else style="color: #909399; font-size: 12px; margin-left: 45%">
-            未选择领域或该领域下无特征
-          </div>
-        </el-card>
-      </el-main>
-    </el-container>
-    <!--    新增关系实例对话框    -->
-    <el-dialog title="新增系统特征" :visible.sync="dialogAddingEdgeVisible" append-to-body style="width: auto ">
-
-      <div id="upload-frame">
-        <el-form ref="headUploadRef" :rules="rules" :model="headUpload" label-width="80px" size="mini">
-          <el-form-item label="领域" prop="area">
-            <el-select @change="selectChanged" v-model="headUpload.area" placeholder="请选择">
-              <el-option v-for="a in areaOptions" :key="a" :label="a" :value="a">
-              </el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="特征名" prop="name">
-            <el-input v-model="headUpload.name"></el-input>
-          </el-form-item>
-          <el-form-item label="特征简介" prop="description">
-            <el-input type="textarea" autosize placeholder="请输入特征简介" v-model="headUpload.description">
-            </el-input>
-          </el-form-item>
-          <!-- <el-form-item label="类型" prop="type">
-              <el-select @change="selectChanged" v-model="headUpload.type" placeholder="请选择">
-                <el-option v-for="a in typeOption" :key="a" :label="a" :value="a">
-                </el-option>
-              </el-select>
-            </el-form-item> -->
-        </el-form>
-        <el-button size="small" type="primary" @click="handleHeadUpload">新增</el-button>
-      </div>
-    </el-dialog>
-
-
     <el-button size="small" type="primary" @click="handleUpload">上传</el-button>
   </div>
 </template>
@@ -201,12 +43,8 @@ export default {
       taskOptions: ["通用"],
       datasetInfo: {
         name: '',
-        task: '',
         short_description: '',
         long_description: '',
-        area: '',
-        time_series: "",
-        id_col: "",
         file: null,
         fileList: null,
       },
@@ -219,9 +57,6 @@ export default {
       rules: {
         name: [
           { required: true, message: '请输入名称', trigger: 'blur' },
-        ],
-        area: [
-          { required: true, message: '请选择领域', trigger: 'blur' },
         ],
         short_description: [
           { required: true, message: '请填写数据简介', trigger: 'blur' },
@@ -369,8 +204,6 @@ export default {
             duration: 5000
           });
         }
-        // this.count = data.count
-        // this.resultList = data.results
       })
     },
 
@@ -382,12 +215,8 @@ export default {
         params: {
         }
       }).then((res) => {
-        // console.log("area")
-        // console.log(res.data)
         if (res.status == 200) {
           that.areaOptions = res.data.areas
-          // this.count = data.count
-          // this.resultList = data.results
         }
         else {
           that.$notify.error({
@@ -523,17 +352,6 @@ export default {
         });
         return false
       }
-      // const fileType = name.substr(index + 1);
-      // const acceptFileTypes = ['csv', 'xlsx'];
-      // 判断文件类型
-      // if (!acceptFileTypes.includes(fileType)) {
-      //   this.$notify.error({
-      //     title: '错误',
-      //     message: '文件类型错误，请重新上传！',
-      //   });
-      //   return false;
-      // }
-      // 判断文件大小
       if (size > 10 * 1024 * 1024) {
         this.$notify.error({
           title: '错误',
@@ -554,52 +372,16 @@ export default {
           that.alert_msg.warning("请正确输入表单内容");
           return false;
         }
-        // this.$refs.upload.submit();
       })
-      // that.$refs["upload"].validate((valid) => {
-      //   if (!valid) {
-      //     that.alert_msg.warning("请上传文件");
-      //     return false;
-      //   }
-      //   // this.$refs.upload.submit();
-      // })
 
-      console.log(this.file)
       var params = new FormData()
       params.append('file', this.file)
       params.append('name', this.datasetInfo.name)
-      params.append('task', this.datasetInfo.name)
-      params.append('area', this.datasetInfo.area)
       params.append('short_description', this.datasetInfo.short_description)
       params.append('long_description', this.datasetInfo.long_description)
-
-      var time_series = that.datasetInfo.time_series;
-      // if(that.datasetInfo.time_series != ""){
-      //   time_series = that.datasetInfo.time_series
-      // }
-      var id_col = that.datasetInfo.id_col;
-      // if(that.datasetInfo.id_col != ""){
-      //   id_col = that.datasetInfo.id_col
-      // }
-
-      var store_name = {};
-      for (var item in that.tableData[0].edgeInstances) {
-        if (that.tableData[0].edgeInstances[item].fromValue != null) {
-          if (time_series == that.tableData[0].edgeInstances[item].fromValue) {
-            time_series = that.tableData[0].edgeInstances[item].fromLabel
-          }
-          else if (id_col == that.tableData[0].edgeInstances[item].fromValue) {
-            id_col = that.tableData[0].edgeInstances[item].fromLabel
-          }
-          store_name[that.tableData[0].edgeInstances[item].fromLabel] = that.tableData[0].edgeInstances[item].fromValue
-        }
-      }
-      params.append('store_name', JSON.stringify(store_name))
       params.append('process_code', "")
       params.append('father_name', "")
 
-      params.append('time_series', time_series)
-      params.append('id_col', id_col)
       this.$http_wang({
         url: "/predata/",
         method: "post",
@@ -669,17 +451,7 @@ export default {
         });
         return false
       }
-      // const fileType = name.substr(index + 1);
-      // const acceptFileTypes = ['csv', 'xlsx'];
-      // 判断文件类型
-      // if (!acceptFileTypes.includes(fileType)) {
-      //   this.$notify.error({
-      //     title: '错误',
-      //     message: '文件类型错误，请重新上传！',
-      //   });
-      //   return false;
-      // }
-      // 判断文件大小
+
       if (size > 10 * 1024 * 1024) {
         this.$notify.error({
           title: '错误',
