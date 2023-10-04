@@ -252,7 +252,7 @@ export default {
         console.log(err)
         that.$notify.error({
           title: '服务器失败 :/account/logout/ post',
-          message: res.response,
+          message: err.response,
           duration: 5000
         });
       })
@@ -281,7 +281,7 @@ export default {
         console.log(err)
         that.$notify.error({
           title: '服务器失败 :/account/get_user/ post',
-          message: res.response,
+          message: err.response,
           duration: 5000
         });
       })

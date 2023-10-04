@@ -1,19 +1,24 @@
 <template>
-  <el-card class="card">
-    <div>
+  <el-card id = "login_card" class="card">
+    <div id="form_body">
+      <div id = "login_logo">
+        <img src="@/assets/pku_logo.jpeg" alt="logo" style="height: 100%; width: 70%; margin-left:15%">
+      </div>
       <el-form :model="form" status-icon :rules="rules" ref="form" label-width="0" class="demo-form">
         <el-form-item prop="username">
+          <span>Username:</span>
           <el-input type="text" v-model="form.username" placeholder="请输入用户名" clearable>
             <i slot="prefix" class="el-input__icon iconfont el-icon-user"></i>
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
+          <span>Password:</span>
           <el-input type="password" v-model="form.password" placeholder="请输入密码" clearable
             @keypress.native.enter="submitForm('form')">
             <i slot="prefix" class="el-input__icon iconfont el-icon-lock"></i>
           </el-input>
         </el-form-item>
-        <el-button type="primary" @click="submitForm('form')">登录</el-button>
+        <el-button id="login_button" type="primary"  @click="submitForm('form')" @mousedown.native.stop="changeColor" @mouseup.native.stop="recoverColor" >登录</el-button>
       </el-form>
     </div>
     <div class="msg">
@@ -23,6 +28,7 @@
 </template>
 
 <script>
+import { color } from "echarts"
 import QS from "qs"
 
 export default {
@@ -61,6 +67,27 @@ export default {
     }
   },
   methods: {
+    changeColor(event){
+      // console.log("hhh1");
+      let element = event.target;
+      // console.log(element.tagName);
+      if(element.tagName != "BUTTON"){  //点击到了button中的span区域
+        element = element.parentNode;
+      }
+      // console.log(element.tagName);
+      element.style.backgroundColor = "#0250c5";
+    },
+    recoverColor(event){
+      // console.log("hhh2");
+      let element = event.target;
+      // console.log(element.tagName);
+      if(element.tagName != "BUTTON"){
+        element = element.parentNode;
+      }
+      // console.log(element.tagName);
+      element.style.backgroundColor = "#3F87DA";
+      
+    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -108,6 +135,8 @@ export default {
           });
         }
         else {
+          // console.log("hhh");
+          // console.log(err);
           that.$notify.error({
             title: '服务器失败 :/account/login/ post',
             message: res.response,
@@ -115,12 +144,14 @@ export default {
           });
         }
       }).catch(err => {
-        console.log(err)
+        console.log("hhh");
+        console.log(err);
         that.$notify.error({
           title: '服务器失败 :/account/login/ post',
-          message: res.response,
+          message: err.response,
           duration: 5000
         });
+        that.$alert("登陆失败，请重试");
       })
     }
   }
@@ -128,6 +159,20 @@ export default {
 </script>
 
 <style scoped>
+
+#login_logo img{
+  height: 100%; 
+  width: 70%;
+  margin-left:15%;
+  margin-top:5%;
+}
+
+#login_logo{
+  position: absolute;
+  width: 100%;
+  height: 25%;
+}
+
 h2 {
   text-align: center;
   margin: 0 auto 10px;
@@ -140,12 +185,29 @@ h2>figure:hover {
 
 .card {
   position: absolute;
-  height: auto;
+  height: 600px;
   width: 400px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   border-radius: 15px;
+}
+
+ #login_card >>> .el-card__body{
+  height:560px;
+}
+
+#form_body{
+  height: 500px;
+  width:100%;
+  position:relative;
+}
+
+#form_body >>> .el-form{
+  position:absolute;
+  bottom: 50px;
+  width:80%;
+  left:10%;
 }
 
 .demo-form {
@@ -157,19 +219,25 @@ h2>figure:hover {
   margin-left: 2px;
 }
 
-.el-button {
+#login_card >>>.el-button {
   width: 100%;
   color: white;
-  background-image: linear-gradient(to right, #0250c5, #3F87DA);
+  background-color: #3F87DA;
+  /* background-image: linear-gradient(to right, #0250c5, #3F87DA); */
   text-align: center;
   margin: 10px auto;
+  margin-top: 22px;
   height: 40px;
   letter-spacing: 3em;
   text-indent: 2em;
 }
 
-.el-button:hover {
-  background-color: #3F87DA;
+/* #login_card >>>.el-button:hover {
+  background-color: #0250c5 ;
+} */
+
+#login_button{
+  margin-top: 22px;
 }
 
 .msg {

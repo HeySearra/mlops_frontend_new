@@ -1,23 +1,29 @@
 <template>
-  <el-card class="card">
-    <div>
+  <el-card id="register_card" class="card">
+    <div id="form_body">
+      <div id = "register_logo">
+        <img src="@/assets/pku_logo.jpeg" alt="logo" style="height: 100%; width: 70%; margin-left:15%">
+      </div>
       <el-form :model="form" status-icon :rules="rules" ref="form" label-width="0" class="demo-form">
         <el-form-item prop="user">
+          <span>用户名:</span>
           <el-input type="text" v-model="form.user" placeholder="请输入用户名" clearable>
             <i slot="prefix" class="el-input__icon iconfont el-icon-user"></i>
           </el-input>
         </el-form-item>
         <el-form-item prop="pass">
+          <span>密码:</span>
           <el-input type="password" v-model="form.pass" placeholder="请输入密码" clearable>
             <i slot="prefix" class="el-input__icon iconfont el-icon-lock"></i>
           </el-input>
         </el-form-item>
         <el-form-item prop="checkPass">
+          <span>确认密码:</span>
           <el-input type="password" v-model="form.checkPass" placeholder="请再次输入密码">
             <i slot="prefix" class="el-input__icon iconfont el-icon-lock"></i>
           </el-input>
         </el-form-item>
-        <el-button type="primary" @click="submitForm('form')">注册</el-button>
+        <el-button type="primary" @click="submitForm('form')" @mousedown.native="changeColor" @mouseup.native="recoverColor" >注册</el-button>
       </el-form>
     </div>
     <div class="msg">
@@ -79,6 +85,27 @@ export default {
     }
   },
   methods: {
+    changeColor(event){
+      // console.log("hhh1");
+      let element = event.target;
+      // console.log(element.tagName);
+      if(element.tagName != "BUTTON"){ //点击到了button中的span区域
+        element = element.parentNode;
+      }
+      // console.log(element.tagName);
+      element.style.backgroundColor = "#0250c5";
+    },
+    recoverColor(event){
+      // console.log("hhh2");
+      let element = event.target;
+      // console.log(element.tagName);
+      if(element.tagName != "BUTTON"){
+        element = element.parentNode;
+      }
+      // console.log(element.tagName);
+      element.style.backgroundColor = "#3F87DA";
+      
+    },
     submitForm (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -130,6 +157,19 @@ export default {
 </script>
 
 <style scoped>
+#register_logo img{
+  height: 100%; 
+  width: 70%;
+  margin-left:15%;
+  margin-top:5%;
+}
+
+#register_logo{
+  position: absolute;
+  width: 100%;
+  height: 25%;
+}
+
 h2{
   text-align: center;
   margin: 0 auto 10px;
@@ -140,12 +180,29 @@ h2>figure:hover{
 }
 .card{
   position: absolute;
-  height: auto;
+  height: 600px;
   width: 400px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   border-radius: 15px;
+}
+
+#register_card >>> .el-card__body{
+  height:560px;
+}
+
+#form_body{
+  height: 500px;
+  width:100%;
+  position:relative;
+}
+
+#form_body >>> .el-form{
+  position:absolute;
+  bottom: 10px;
+  width:80%;
+  left:10%;
 }
 
 .demo-form{
@@ -157,20 +214,19 @@ h2>figure:hover{
   margin-left:2px;
 }
 
-.el-button{
+#register_card >>> .el-button{
   width: 100%;
   color: white;
-  background-image: linear-gradient(to right, #0250c5, #3F87DA);
+  background-color: #3F87DA;
+  /* background-image: linear-gradient(to right, #0250c5, #3F87DA); */
   text-align: center;
   margin: 10px auto;
+  margin-top: 22px;
   height: 40px;
   letter-spacing: 3em;
   text-indent: 2em;
 }
 
-.el-button:hover{
-  background-color: #3F87DA;
-}
 
 .msg{
   display: block;
