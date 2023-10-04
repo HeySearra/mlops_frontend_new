@@ -61,16 +61,17 @@ export default {
       input: '',
       search_word: '',
       count: undefined,
-      resultList: {
-        "id": 28,
-        "name": "0818test北医三院动态数据",
-        "short_description": "0818test北医三院动态数据",
-        "created": "2023-08-18T18:35:50.786218",
-        "owner": "admin",
-        "experiment_times": 1,
-        "task": "0818test北医三院动态数据",
-        "area": "医疗"
-      },
+      resultList: undefined,
+      // [{
+      //   "id": 28,
+      //   "name": "0818test北医三院动态数据",
+      //   "short_description": "0818test北医三院动态数据",
+      //   "created": "2023-08-18T18:35:50.786218",
+      //   "owner": "admin",
+      //   "experiment_times": 1,
+      //   "task": "0818test北医三院动态数据",
+      //   "area": "医疗"
+      // },],
       sortType: 2,
       uploadDialogVisible: false
     }
@@ -94,9 +95,10 @@ export default {
 
   computed: {
     filterResults () {
-        // 1. 得到依赖数据
         const {sortType, resultList} = this
-        // 2. 进行计算处理, 产生结果数据并返回
+        if(resultList == undefined){
+          return resultList
+        }
         // 过滤
         // const arr = resultList.filter(p => p.name.indexOf(searchName)>=0)
  
