@@ -5,10 +5,20 @@
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
       <div style="margin-top: 10px;">
-        <el-button @click="sortType=1">按时间升序</el-button>
+        <!-- <el-button @click="sortType=1">按时间升序</el-button>
         <el-button @click="sortType=2">按时间降序</el-button>
         <el-button @click="sortType=3">按名称升序</el-button>
         <el-button @click="sortType=4">按名称降序</el-button>
+        <el-button @click="sortType=5">按实验次数升序</el-button>
+        <el-button @click="sortType=6">按实验次数降序</el-button> -->
+
+        <el-button class="main" v-for="(item,index) in sortList" :plain="current==index?true: false" :key="index" @click="chang(index)">
+          <span>{{item.name}}</span>
+          <span class="sort" style="width: 0px;">
+            <i :color="item.status == 1 ? '#409eff' : '#606266'" class="el-icon-arrow-up"></i>
+            <i :color="item.status == 2 ? '#409eff' : '#606266'" class="el-icon-arrow-down"></i>
+          </span>
+        </el-button>
       </div>
     </div>
 
@@ -28,8 +38,8 @@
       <div v-for="(item, index) in filterResults " :key="index">
         <div style="cursor: pointer" @click="toDataset(item)">
           <div class="title">{{ item.name }}</div>
-          <el-tag size="small" type="success">{{ item.task }}</el-tag>
-          <el-tag type="warning" size="small">{{ item.area }}</el-tag>
+          <!-- <el-tag size="small" type="success">{{ item.task }}</el-tag> -->
+          <!-- <el-tag type="warning" size="small">{{ item.area }}</el-tag> -->
           <div class="info">{{ item.short_description }}</div>
           <div class="num">{{ item.experiment_times }}次实验
             <span style="padding-left:20px"></span>
@@ -73,6 +83,12 @@ export default {
       //   "area": "医疗"
       // },],
       sortType: 2,
+      sortList:[
+					{name:'时间',status:1},
+					{name:'名称',status:0},
+					{name:'实验次数',status:0}
+				],
+      current: 0,
       uploadDialogVisible: false
     }
   },
@@ -95,7 +111,7 @@ export default {
 
   computed: {
     filterResults () {
-        const {sortType, resultList} = this
+        const {current, sortList, resultList} = this
         if(resultList == undefined){
           return resultList
         }
@@ -103,14 +119,18 @@ export default {
         // const arr = resultList.filter(p => p.name.indexOf(searchName)>=0)
  
         resultList.sort((p1, p2) => {
-          if (sortType===1) { // 升序
+          if (current == 0 && sortList[current].status == 1) { // 升序
             return p1.created.localeCompare(p2.created)
-          } else if (sortType == 2) { // 降序
+          } else if (current == 0 && sortList[current].status == 2) { // 降序
             return p2.created.localeCompare(p1.created)
-          } else if (sortType == 3) {
+          } else if (current == 1 && sortList[current].status == 1) {
             return p1.name.localeCompare(p2.name)
-          } else{
+          } else if (current == 1 && sortList[current].status == 2) {
             return p2.name.localeCompare(p1.name)
+          } else if (current == 2 && sortList[current].status == 1) {
+            return p1.experiment_times - p2.experiment_times
+          } else {
+            return p2.experiment_times - p1.experiment_times
           }
         })
         return resultList
@@ -118,6 +138,17 @@ export default {
     },
 
   methods: {
+    chang(index){    //点击切换
+      if (this.current != index) {
+        this.sortList.forEach(v=>{
+          v.status=0
+        })
+        this.sortList[index].status = 2
+      }
+      this.sortList[index].status == 1 ? this.sortList[index].status = 2 : this.sortList[index].status = 1  //单个切换
+      this.current = index;
+    },
+
     search() {
       this.search_word = this.input.trim()
       this.get_datasets_list()
@@ -220,11 +251,11 @@ export default {
 
 <style  scoped>
 .container {
-  padding: 40px 180px;
+  padding: 40px 150px;
 }
 
 .search-box {
-  width: 500px;
+  padding: 0px 50px;
   margin-left: 150px;
   margin-bottom: 40px;
 }
