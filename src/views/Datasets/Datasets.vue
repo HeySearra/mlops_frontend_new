@@ -4,6 +4,12 @@
       <el-input placeholder="搜索数据集" v-model="input">
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
+      <div style="margin-top: 10px;">
+        <el-button @click="sortType=1">按时间升序</el-button>
+        <el-button @click="sortType=2">按时间降序</el-button>
+        <el-button @click="sortType=3">按名称升序</el-button>
+        <el-button @click="sortType=4">按名称降序</el-button>
+      </div>
     </div>
 
     <el-button id="upload-button" class="mid-child-container" circle @click="clickSubmitIcon">
@@ -17,60 +23,9 @@
       <dataUpload></dataUpload>
     </el-dialog>
 
-    <div class="filter">
-      <el-card class="limit" shadow="never">
-        <div slot="header">
-          <span>领域</span>
-        </div>
-        <el-collapse-transition>
-          <div style="padding: 8px 0">
-            <el-radio-group v-model="clusterFields.checkList">
-              <el-radio v-for="(item, i) in clusterFields.data" :label="item" :key="i"
-                @click.prevent.native="checkRadio(item, clusterFields)">
-                <el-tag type="warning" :effect="item == clusterFields.checkList ? 'light' : 'plain'">{{ item }}</el-tag>
-              </el-radio>
-            </el-radio-group>
-          </div>
-        </el-collapse-transition>
-      </el-card>
-
-      <el-card class="limit" shadow="never" v-if="mode == '其他'">
-        <div slot="header">
-          <span>任务</span>
-        </div>
-        <el-collapse-transition>
-          <div style="padding: 8px 0">
-            <el-radio-group v-model="clusterTasks.checkList">
-              <el-radio v-for="(item, i) in clusterTasks.data" :label="item" :key="i"
-                @click.prevent.native="checkRadio(item, clusterTasks)">
-                <el-tag type="success" :effect="item == clusterTasks.checkList ? 'light' : 'plain'">{{ item }}</el-tag>
-              </el-radio>
-            </el-radio-group>
-          </div>
-        </el-collapse-transition>
-      </el-card>
-
-      <el-card class="limit" shadow="never">
-        <div slot="header">
-          <span>分类</span>
-        </div>
-        <el-collapse-transition>
-          <div style="padding: 8px 0">
-            <el-radio-group v-model="clusterGoal.checkList">
-              <el-radio v-for="(item, i) in clusterGoal.data" :label="item" :key="i"
-                @click.prevent.native="checkRadio_Goal(item, clusterGoal)">
-                <el-tag type="success" :effect="item == clusterGoal.checkList ? 'light' : 'plain'">{{ item }}</el-tag>
-              </el-radio>
-            </el-radio-group>
-          </div>
-        </el-collapse-transition>
-      </el-card>
-
-    </div>
-
-    <p style="  margin-left: 400px; ">共找到 {{ count }} 条数据集</p>
+    <p style="  margin-left: 150px; ">共找到 {{ count }} 条数据集</p>
     <div class="data-result">
-      <div v-for="(item, index) in resultList " :key="index">
+      <div v-for="(item, index) in filterResults " :key="index">
         <div style="cursor: pointer" @click="toDataset(item)">
           <div class="title">{{ item.name }}</div>
           <el-tag size="small" type="success">{{ item.task }}</el-tag>
@@ -106,19 +61,17 @@ export default {
       input: '',
       search_word: '',
       count: undefined,
-      resultList: undefined,
-      clusterFields: {
-        data: ['新闻', '金融', '医疗'],
-        checkList: '',
+      resultList: {
+        "id": 28,
+        "name": "0818test北医三院动态数据",
+        "short_description": "0818test北医三院动态数据",
+        "created": "2023-08-18T18:35:50.786218",
+        "owner": "admin",
+        "experiment_times": 1,
+        "task": "0818test北医三院动态数据",
+        "area": "医疗"
       },
-      clusterTasks: {
-        data: ['命名实体识别', '关系抽取', '实体关系联合抽取'],
-        checkList: '',
-      },
-      clusterGoal: {
-        data: ['预处理', '其他'],
-        checkList: ''
-      },
+      sortType: 2,
       uploadDialogVisible: false
     }
   },
@@ -139,6 +92,29 @@ export default {
     this.get_datasets_list()
   },
 
+  computed: {
+    filterResults () {
+        // 1. 得到依赖数据
+        const {sortType, resultList} = this
+        // 2. 进行计算处理, 产生结果数据并返回
+        // 过滤
+        // const arr = resultList.filter(p => p.name.indexOf(searchName)>=0)
+ 
+        resultList.sort((p1, p2) => {
+          if (sortType===1) { // 升序
+            return p1.created.localeCompare(p2.created)
+          } else if (sortType == 2) { // 降序
+            return p2.created.localeCompare(p1.created)
+          } else if (sortType == 3) {
+            return p1.name.localeCompare(p2.name)
+          } else{
+            return p2.name.localeCompare(p1.name)
+          }
+        })
+        return resultList
+      }
+    },
+
   methods: {
     search() {
       this.search_word = this.input.trim()
@@ -152,8 +128,8 @@ export default {
           method: "get",
           params: {
             page: page,
-            area: this.clusterFields.checkList,
-            task: this.clusterTasks.checkList,
+            // area: this.clusterFields.checkList,
+            // task: this.clusterTasks.checkList,
             name: this.search_word
           }
         }).then((res) => {
@@ -167,7 +143,7 @@ export default {
           method: "get",
           params: {
             page: page,
-            area: this.clusterFields.checkList,
+            // area: this.clusterFields.checkList,
             name: this.search_word
           }
         }).then((res) => {
@@ -185,36 +161,6 @@ export default {
           }
         })
       }
-
-    },
-
-    checkRadio(val, cluster) {
-      val == cluster.checkList ? cluster.checkList = '' : cluster.checkList = val
-      this.get_datasets_list()
-    },
-
-    checkRadio_Goal(val, cluster) {
-      if (this.mode != val) {
-        this.switchSystem(this.mode, val)
-      }
-    },
-
-    switchSystem(from, to) {
-      this.mode = to
-      if (to == '其他') {
-        this.clusterFields = {
-          data: ['新闻', '金融', '医疗'],
-          checkList: '',
-        }
-        this.clusterTasks.checkList = ''
-      } else if (to == "预处理") {
-        this.clusterFields = {
-          data: ['钢铁', '医疗'],
-          checkList: '',
-        }
-        this.clusterTasks.checkList = ''
-      }
-      this.get_datasets_list()
     },
 
 
@@ -228,7 +174,7 @@ export default {
         });
       } else if (this.mode == '预处理') {
         this.$router.push({
-          name: "DataDetails_wang",
+          name: "DataDetails",
           params: {
             id: arg.id
           }
@@ -277,11 +223,12 @@ export default {
 
 .search-box {
   width: 500px;
+  margin-left: 150px;
   margin-bottom: 40px;
 }
 
 .data-result {
-  margin-left: 400px;
+  margin-left: 150px;
   margin-right: 80px;
 }
 
