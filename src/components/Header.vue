@@ -2,8 +2,9 @@
   <div class="header-container">
     <div class="header_nav">
       <div id="left">
+        <img src="../assets/newLogo-white.png" class="img-fluid" style="padding-left:30px; height:30px" />
         <div id="head-title">
-          <span style="padding-left:8px">模型库</span>
+          <span>MLops</span>
         </div>
         <router-link to="/datasets" class="menu-item">
           <svg class="icon" aria-hidden="true">
