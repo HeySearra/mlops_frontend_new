@@ -17,7 +17,7 @@
       </div>
       
     </el-form>
-    <el-descriptions title="数据集基本信息" class="dataset-info">
+    <el-descriptions title="数据集基本信息" class="dataset-info" v-loading="datasetLoading">
       <el-descriptions-item label="数据集ID">{{ datasetInfo.id }}</el-descriptions-item>
       <el-descriptions-item label="数据集任务">{{ datasetInfo.task }}</el-descriptions-item>
       <el-descriptions-item label="数据集领域">{{ datasetInfo.area }}</el-descriptions-item>
@@ -35,6 +35,7 @@
         height="500"
         stripe
         class="static-info"
+        v-loading="staticLoading"
         @selection-change="handleSelectionChange">
       <el-table-column
           type="selection"
@@ -62,7 +63,7 @@
       </el-table-column>
     </el-table>
     <div style="margin-top: 20px">
-      <el-button @click="multiFeatureTest()">多特征检验</el-button>
+      <el-button @click="multiFeatureTest()" >多特征检验</el-button>
     </div>
     <el-dialog title="多特征检验"
                :visible.sync="MultiTestShow"
@@ -176,9 +177,10 @@ export default {
       cur_dataset_name: "",
       cur_model: '',
       datasetList: '',
-      dataset_id: '',
-      dataset_id_num: '',
+      dataset_id: 0,
+      dataset_id_num: 0,
       datasetInfo: '',
+      datasetLoading:true,
       childDatasetList: [],
       staticInfo: [],
       staticMultipleSelection: [],
@@ -248,7 +250,7 @@ export default {
       singleSeries: '',
       singleSelected: {},
       curSingleData:'1231',
-
+      staticLoading:true,
     }
   },
 
@@ -260,18 +262,39 @@ export default {
 
   mounted() {
     this.figureChart = echarts.init(this.$refs.explore_chart);
+    this.initData();
   },
 
   methods: {
+      initData(){
+        this.$http_vis({
+        url: "/predata/?list=1",
+        method: "get",
+      }).then((res) => {
+          let data = res.data.results
+          this.datasetList = data
+      }).then(()=>{
+
+        this.cur_dataset_id = this.datasetList[0].id;
+        this.getDatasetId();
+      }).then(()=>{
+        let url = "/predata/" + this.cur_dataset_id + "/";
+        this.$http_vis({
+          url: url,
+          method: "get",
+        }).then((res)=>{
+          let data = res.data;
+          this.dataset_id_num = data.children[0].children_id[0]
+        })
+      })
+    },
     getDatasetList() {
-      // console.log(this.cur_dataset);
       this.$http_vis({
         url: "/predata/?list=1",
         method: "get",
       }).then((res) => {
           let data = res.data.results
           this.datasetList = data
-          // console.log(this.datasetList);
       })
     },
     getModelList() {
@@ -287,6 +310,7 @@ export default {
         })
     },
     getDatasetId(val){
+      
       let url = "/predata/" + this.cur_dataset_id + "/";
       this.$http_vis({
         url: url,
@@ -323,7 +347,7 @@ export default {
       // this.getProcess(val);
     },
     getChildDatasetId(val) {
-      console.log(val);
+      // console.log(val);
       for (let i in this.childDatasetList) {
         if (this.childDatasetList[i].children_name == val) {
           this.dataset_id_num = this.childDatasetList[i].children_id;
@@ -335,11 +359,14 @@ export default {
     },
     getProcess(){
       let url = "/predata/" + this.dataset_id_num + "/";
+      this.staticLoading = true;
+      this.datasetLoading = true;
       this.$http_vis({
         url: url,
         method: "get",
         }).then((res) => {
           // console.log(res.data);
+          this.datasetLoading = false;
           this.datasetInfo = res.data;
           this.datasetInfo.created  = this.formatToSecond(this.datasetInfo.created);
           let fList = res.data.sample.head;
@@ -353,7 +380,8 @@ export default {
           }
         }).then((res) => {
           let data = res.data.data;
-          console.log(data);
+          // console.log(data);
+          this.staticLoading = false;
           this.staticInfo = [];
           for (var i=0; i<data.feature_name.length; i++) {
             let item = {feature_name: data.feature_name[i], min: data.metric.min[i], max:data.metric.max[i], mean:data.metric.mean[i], std:data.metric.std[i],
@@ -445,7 +473,7 @@ export default {
           // console.log(res.data.data.figureData);
           let resdata = res.data.data.figureData;
           this.figureData = resdata;
-          console.log(this.figureData);
+          // console.log(this.figureData);
           let myChart = this.figureChart;
           myChart.clear();
           if (this.figureClass=="pie") {
@@ -653,8 +681,8 @@ export default {
             this.globalData.push([index,0,features[key]]);
             index += 1;
           }
-          console.log(this.globalXaxis);
-          console.log(this.globalData);
+          // console.log(this.globalXaxis);
+          // console.log(this.globalData);
           // this.initCharts();
           this.initHeatmap();
         })
@@ -860,7 +888,7 @@ export default {
             count = count + 1;
       }
       this.singleSelected.output = true;
-      console.log(this.singleSelected);
+      // console.log(this.singleSelected);
       myChart.setOption({legend: {
         selected: this.singleSelected
       }});

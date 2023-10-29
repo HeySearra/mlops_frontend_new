@@ -31,7 +31,14 @@
         <div slot="header" class="card-title">
           <span>可视化图</span>
         </div>
-        预留可视化图
+        <div id="picture" ref="visualization" style="width: 100%; height: 300px;">
+
+
+        </div>
+
+        <!-- 预留可视化图  -->
+
+
         <!-- <el-table border tooltip-effect="dark" style="width: 100%" max-height="210" :data="history"
           :row-style="{ height: '10px' }" :cell-style="{ padding: '0' }" :header-cell-style="{
             'font-size': '14px',
@@ -75,6 +82,7 @@
 <script>
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
+import * as echarts from "echarts";
 
 export default {
   name: "DatasetIntro.vue",
@@ -83,7 +91,42 @@ export default {
   },
   data() {
     return {
-
+      option : {
+        title: {
+          text: 'Data missing rate'
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          }
+        },
+        legend: {},
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'value',
+          boundaryGap: [0, 0.01],
+          axisLabel: {
+            formatter: '{value} %'
+          }
+        },
+        yAxis: {
+          type: 'category',
+          data: ['Height', 'Weight', 'Scr', 'Heart_failure', 'CHD', 'MI']
+        },
+        series: [
+          {
+            name: '2011',
+            type: 'bar',
+            data: [40, 70, 52, 12, 89, 29]
+          }
+        ]
+      }
     }
   },
   props: {
@@ -124,6 +167,9 @@ export default {
         return
       }
   },
+  mounted(){
+    this.initEcharts();
+  },
   methods: {
     Download() {
       window.open("http://162.105.88.214:4499/predata/" + this.id + "/download")
@@ -137,6 +183,15 @@ export default {
       } else {
         return cellValue
       }
+    },
+    initEcharts(){
+      var chartDom = this.$refs.visualization;
+      // var chartDom = document.getElementById("picture");
+      var myChart = echarts.init(chartDom);
+      console.log("hhh");
+      console.log(this.option);
+      myChart.setOption(this.option);
+      // this.option && echarts.initEcharts(this.option);
     }
   }
 }
