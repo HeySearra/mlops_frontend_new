@@ -13,3 +13,7 @@ a {
 .limit .el-radio__input {
     display: none;
   }
+
+body{
+  font-size: 18px;
+}

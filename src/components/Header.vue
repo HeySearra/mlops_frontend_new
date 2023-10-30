@@ -1,30 +1,44 @@
 <template>
   <div class="header-container">
     <div class="header_nav">
-      <div id="left">
+      <div id="left" ref="bar_left">
         <img src="../assets/newLogo-white.png" class="img-fluid" style="padding-left:30px; height:30px" />
         <div id="head-title">
           <span>MLops</span>
         </div>
-        <router-link to="/datasets" class="menu-item">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-data"></use>
-          </svg>
+        <router-link to="/datasets" class="menu-item" >
+          <div>
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-data"></use>
+            </svg>
           数据集
+          </div>
         </router-link>
-        <router-link :to="{path: '/flow-experiments'}" class="menu-item">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-model"></use>
-          </svg>
-          模型
+      
+        <router-link to='/visualize' class="menu-item" >
+          <div>
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-data1"></use>
+            </svg>
+            数据探查
+          </div>
         </router-link>
-        <el-dropdown class="menu-item">
-          <span>
+        <router-link to='/modelana' class="menu-item" >
+          <div >
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-data1"></use>
+            </svg>
+            模型分析
+          </div>
+        </router-link>
+
+        <el-dropdown class="menu-item" >
+          <div>
               <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-code"></use>
               </svg>
               实验
-          </span>
+          </div>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>
               <el-button type = "text" @click="clickSubmitIcon" style = "color: #333333">
@@ -38,18 +52,14 @@
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        
-        <router-link to='/visualize' class="menu-item">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-data1"></use>
-          </svg>
-          数据探查
-        </router-link>
-        <router-link to='/modelana' class="menu-item">
-          <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-data1"></use>
-          </svg>
-          模型分析
+
+        <router-link :to="{path: '/flow-experiments'}" class="menu-item">
+          <div> 
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-model"></use>
+            </svg>
+            模型
+          </div>
         </router-link>
         <!-- <span class="menu-item">
           <svg class="icon" aria-hidden="true">
@@ -134,6 +144,8 @@
 </template>
 
 <script>
+import { color } from 'echarts'
+
 
 
 export default {
@@ -367,8 +379,15 @@ export default {
       console.log('datasetId,',this.datasetId);
       console.log('dataId,', this.form.dataId);
       console.log('file,',this.codeFile);
-    }
+    },
 
+    focusColor(event){
+      console.log("hhhh");
+      let item = event.target;
+      console.log(item);
+      // item.style.backgroundColor = "#409EFF";
+      console.log()
+    }
   },
 
   watch: {
@@ -411,7 +430,7 @@ export default {
   position: fixed;
   z-index: 1500;
   width: 100%;
-  height: 52px;
+  height: 60px;
   padding-right: 45px;
   background: rgb(255, 255, 255);
   display: flex;
@@ -456,6 +475,14 @@ li :hover {
   font-size: 1em;
   color: #333333;
   padding-left: 30px;
+  height:100%;
+  display: block;
+}
+
+.menu-item > *{
+  margin:auto;
+  height: 70%;
+  margin-top: 18px;
 }
 
 .dropdown {
@@ -466,7 +493,9 @@ li :hover {
   display: inline-flex;
   justify-items: stretch;
   align-items: center;
+  height: 100%;
 }
+
 
 /* #upload-frame {
   width: 100%;

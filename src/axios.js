@@ -4,7 +4,7 @@ import router from "./router";
 
 
 axios.defaults.withcredentials = true;  //允许使用cookie
-var timeout = 2000;
+var timeout = 5000;
 const http = axios.create({
     baseURL: '/api/',
     timeout: timeout,

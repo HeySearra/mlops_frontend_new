@@ -53,10 +53,10 @@
             :data="tableData.data"
             class="table"
             stripe
-            border
             max-height=400
             :row-key="tableData.data.idx"
             :cell-style="cellStyle"
+            v-loading="tableLoading"
         >
           <!-- TODO:貌似设置max-height也可以使表头固定 -->
           <el-table-column prop="idx" label="序号" width=40 fixed="left" />
@@ -110,7 +110,8 @@ export default {
       },
       targetSliceStart:0,
       targetSliceEnd:100,
-      sliceDialogVisible: false
+      sliceDialogVisible: false,
+      tableLoading:true
     }
   },
   methods:{
@@ -127,6 +128,7 @@ export default {
     getData(id, begin, end, sort, sort_field, filter_value, filter_field){
       var that = this;
       that.tableData.data = []
+      that.tableLoading = true
       this.$http_wang({
         url: "/predata/" + id + '/dataset_slice/',
         method: "get",
@@ -151,6 +153,7 @@ export default {
             data.push(row)
           }
           that.tableData.data = data
+          that.tableLoading = false
         }
         else{
           that.$notify.error({

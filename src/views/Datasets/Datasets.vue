@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="search-box">
-      <el-input placeholder="搜索数据集" v-model="input">
+      <el-input placeholder="搜索数据集" v-model="input" style="width: 95%;">
         <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
       </el-input>
       <div style="margin-top: 10px;">
@@ -15,8 +15,8 @@
         <el-button class="main" v-for="(item,index) in sortList" :plain="current==index?true: false" :key="index" @click="chang(index)">
           <span>{{item.name}}</span>
           <span class="sort" style="width: 0px;">
-            <i :color="item.status == 1 ? '#409eff' : '#606266'" class="el-icon-arrow-up"></i>
-            <i :color="item.status == 2 ? '#409eff' : '#606266'" class="el-icon-arrow-down"></i>
+            <i :color="item.status == 1 ? '#409eff' : '#606266'" class="el-icon-arrow-up"  v-show="item.status == 1"></i>
+            <i :color="item.status == 2 ? '#409eff' : '#606266'" class="el-icon-arrow-down" v-show="item.status == 2"></i>
           </span>
         </el-button>
       </div>
@@ -35,16 +35,19 @@
 
     <p style="  margin-left: 150px; ">共找到 {{ count }} 条数据集</p>
     <div class="data-result">
-      <div v-for="(item, index) in filterResults " :key="index">
-        <div style="cursor: pointer" @click="toDataset(item)">
-          <div class="title">{{ item.name }}</div>
-          <!-- <el-tag size="small" type="success">{{ item.task }}</el-tag> -->
-          <!-- <el-tag type="warning" size="small">{{ item.area }}</el-tag> -->
-          <div class="info">{{ item.short_description }}</div>
-          <div class="num">{{ item.experiment_times }}次实验
-            <span style="padding-left:20px"></span>
-            <i class="el-icon-time"></i>
-            {{ item.created.substr(0, 10) }} by {{ item.owner }}
+      <div v-for="(item, index) in filterResults " :key="index" @mouseover.stop="changeColor($event, index, true)" @mouseout.stop="changeColor($event, index, false)" ref="datasets_block">
+        <div id="data-box" style="cursor: pointer" @click="toDataset(item)"  >
+          <img src="@/assets/data.jpeg" class="data-img">
+          <div>
+            <div class="title">{{ item.name }}</div>
+            <!-- <el-tag size="small" type="success">{{ item.task }}</el-tag> -->
+            <!-- <el-tag type="warning" size="small">{{ item.area }}</el-tag> -->
+            <div class="info">{{ item.short_description }}</div>
+            <div class="num">{{ item.experiment_times }}次实验
+              <span style="padding-left:20px"></span>
+              <i class="el-icon-time"></i>
+              {{ item.created.substr(0, 10) }} by {{ item.owner }}
+            </div>
           </div>
         </div>
         <el-divider></el-divider>
@@ -237,6 +240,15 @@ export default {
     handleCurrentChange(val) {
       // this.query.currentPage = val
       this.get_datasets_list(val)
+    },
+    changeColor(event, index, isMouseOver){
+      // console.log(this.$refs.datasets_block[index]);
+      let row = this.$refs.datasets_block[index];
+      if (isMouseOver) {
+          row.style.backgroundColor = "rgba(220,220,220)";
+      } else {
+          row.style.backgroundColor = "";
+      }
     }
   },
 
@@ -255,7 +267,7 @@ export default {
 }
 
 .search-box {
-  padding: 0px 50px;
+  /* padding: 0px 50px; */
   margin-left: 150px;
   margin-bottom: 40px;
 }
@@ -342,5 +354,29 @@ export default {
   width: 100%;
   height: 100%;
   color: #e0e0e0;
+}
+
+.data-img{
+  width: 120px; 
+  height: 120px;
+  margin: auto;
+  float: left;
+}
+
+#data-box{
+  cursor: pointer;
+  width: 100%;
+  height: 120px;
+  padding: 20px;
+}
+
+#data-box >div{
+  margin-left: 30px;
+  margin-top: 10px;
+  float: left;
+}
+
+.data-result >>> .el-divider--horizontal{
+  margin:0px;
 }
 </style>
