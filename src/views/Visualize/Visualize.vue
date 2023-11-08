@@ -82,7 +82,25 @@
       </el-table>
     </el-dialog>
 
-    <el-form>
+
+    <div class="patient-stat">
+      <el-input placeholder="请输入患者ID" v-model="patientId" class="input-with-select">
+        <el-button slot="append" icon="el-icon-search" @click="getPatient()"></el-button>
+      </el-input>
+      <el-descriptions title="患者基本信息">
+        <el-descriptions-item label="ID">{{patientStat.PDID}}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{patientStat.GENDER}}</el-descriptions-item>
+        <el-descriptions-item label="年龄">{{patientStat.AGE}}</el-descriptions-item>
+        <el-descriptions-item label="身高">{{patientStat.HEIGHT}}</el-descriptions-item>
+        <el-descriptions-item label="体重">{{patientStat.WEIGHT}}</el-descriptions-item>
+        <el-descriptions-item label="原始疾病">{{patientStat.ORIGIN_DISEASE}}</el-descriptions-item>
+        <el-descriptions-item label="是否死亡">{{patientStat.DEATH}}</el-descriptions-item>
+        <el-descriptions-item label="死亡年龄">{{patientStat.DEATH_AGE}}</el-descriptions-item>
+        <el-descriptions-item label="死亡原因">{{patientStat.DEATH_REASON}}</el-descriptions-item>
+      </el-descriptions>
+  </div>
+
+    <!-- <el-form>
       <div style="margin-top: 40px;">
         <el-row>
           <el-col :span="6">
@@ -112,6 +130,25 @@
           <el-col :span="3">
             <el-form-item>
               <el-button @click="filterVisible = true">过滤器</el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="3">
+            <el-form-item>
+              <el-button @click="showFigure()">生成</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </div>
+    </el-form> -->
+    <el-form>
+      <div style="margin-top: 40px;">
+        <el-row>
+          <el-col :span="6">
+            <el-form-item :label=secondDim>
+              <el-select multiple v-model="yFeature" :placeholder=secondDim :disabled=yDisabled>
+                <el-option v-for="item in featureList" :value="item" :key="item"
+                            :label="item"></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="3">
@@ -217,7 +254,7 @@ export default {
         }
       },
       firstDim: "横轴",
-      secondDim: "纵轴",
+      secondDim: "特征",
       figureChart: "",
       figureClass: "",
       featureList: ["pdid", "尿素", "血蛋白", "日期"],
@@ -248,7 +285,10 @@ export default {
       singleSeries: '',
       singleSelected: {},
       curSingleData:'1231',
-
+      patientId: '',
+      patientStat: {
+        PDID: '', GENDER: '', BIRTH_DATE: '', AGE: '', ORIGIN_DISEASE: '', DEATH: '', DEATH_AGE: '', DEATH_REASON: '', HEIGHT: '', WEIGHT: ''
+      },
     }
   },
 
@@ -419,24 +459,32 @@ export default {
     showFigure() {
       // console.log(this.dataset_id, this.xFeature, this.yFeature, this.figureClass, this.filterString);
       let requestData = {};
-      if (this.figureClass=="line") {
-        requestData = {
-          dataset_id: this.dataset_id,
-            x_feature: this.xFeature,
-            y_features: this.yFeature,
-            pic_type: this.figureClass,
-            filter_str: this.filterString
-        };
-      }else {
-        requestData = {
-          dataset_id: this.dataset_id,
-            x_feature: this.xFeature,
-            pic_type: "hist",
-            other_args:  {
-              bins_num: 10
-            }
-        }
-      }
+      // if (this.figureClass=="line") {
+      //   requestData = {
+      //     dataset_id: this.dataset_id,
+      //       x_feature: this.xFeature,
+      //       y_features: this.yFeature,
+      //       pic_type: this.figureClass,
+      //       filter_str: this.filterString
+      //   };
+      // }else {
+      //   requestData = {
+      //     dataset_id: this.dataset_id,
+      //       x_feature: this.xFeature,
+      //       pic_type: "hist",
+      //       other_args:  {
+      //         bins_num: 10
+      //       }
+      //   }
+      // }
+      this.figureClass = 'line';
+      requestData = {
+        dataset_id: this.dataset_id,
+        x_feature: 'DATE',
+        y_features: this.yFeature,
+        pic_type: 'line',
+        filter_str: 'PDID==' + this.patientId
+      };
       this.$http_vis({
           url: "/visualcomp/comp/data/",
           method: "post",
@@ -874,6 +922,29 @@ export default {
           }
         }
       });
+    },
+    getPatient() {
+      let filterString = 'PDID==' + this.patientId;
+      let requestData = {
+          dataset_id: '北医三院静态数据',
+            x_feature: 'PDID',
+            y_features: ["PDID", "GENDER", "BIRTH_DATE", "AGE", "ORIGIN_DISEASE", "DEATH", "DEATH_AGE", "DEATH_REASON", "HEIGHT", "WEIGHT"],
+            pic_type: 'line',
+            filter_str: filterString
+        }
+      this.$http_vis({
+          url: "/visualcomp/comp/data/",
+          method: "post",
+          data: requestData
+        }).then((res) => {
+          let resdata = res.data.data.figureData.yFeature;
+          let staticList = ["PDID", "GENDER", "BIRTH_DATE", "AGE", "ORIGIN_DISEASE", "DEATH", "DEATH_AGE", "DEATH_REASON", "HEIGHT", "WEIGHT"]
+          for (var i in staticList) {
+            let feature = staticList[i];
+            this.patientStat[feature] = resdata[i].data[0];
+          }
+          if (this.patientStat.DEATH==0) this.patientStat.DEATH = '否';else this.patientStat.DEATH = '是';
+        });
     }
   }
 
@@ -916,5 +987,14 @@ export default {
 
 a {
   text-decoration: inherit;
+}
+.patient-stat {
+  margin-top: 15px;
+  .el-input {
+    width: 400px;
+  }
+  .el-descriptions {
+    margin-top: 15px;
+  }
 }
 </style>
