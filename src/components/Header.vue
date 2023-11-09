@@ -2,12 +2,11 @@
   <div class="header-container">
     <div class="header_nav">
       <div id="left" ref="bar_left">
-        <img src="../assets/newLogo-white.png" class="img-fluid" style="padding-left:30px; height:30px" />
-        <div id="head-title">
-          <span>MLops</span>
-        </div>
         <router-link to="/datasets" class="menu-item" >
-          <div>
+          <img id = "logo" src="../assets/newLogo-white.png" class="img-fluid" style="padding-left:30px; height:30px" />
+        </router-link>
+        <router-link to="/datasets" class="menu-item" >
+          <div ref="datasets">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-data"></use>
             </svg>
@@ -16,7 +15,7 @@
         </router-link>
       
         <router-link to='/visualize' class="menu-item" >
-          <div>
+          <div ref="visualize">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-data1"></use>
             </svg>
@@ -24,7 +23,7 @@
           </div>
         </router-link>
         <router-link to='/modelana' class="menu-item" >
-          <div >
+          <div ref="modelana">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-data1"></use>
             </svg>
@@ -33,7 +32,7 @@
         </router-link>
 
         <el-dropdown class="menu-item" >
-          <div>
+          <div id="experiment">
               <svg class="icon" aria-hidden="true">
                 <use xlink:href="#icon-code"></use>
               </svg>
@@ -53,8 +52,8 @@
           </el-dropdown-menu>
         </el-dropdown>
 
-        <router-link :to="{path: '/flow-experiments'}" class="menu-item">
-          <div> 
+        <router-link :to="{path: '/flow-experiments'}" class="menu-item" >
+          <div id="model"> 
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-model"></use>
             </svg>
@@ -197,6 +196,15 @@ export default {
     }
   },
   
+  created(){
+    this.$root.$on('selectFunc', (funId) => {
+      console.log("on function" + funId);
+
+      // 在这里调用 header 组件的方法
+      // this.headerMethod(/* 可选参数 */);
+      this.changeColor(funId);
+    });
+  },
   mounted() {
     this.get_user()
     if (this.login_manager.get()) {
@@ -222,6 +230,18 @@ export default {
   },
 
   methods: {
+    changeColor(name){
+      let curNode = this.$refs[name];
+      console.log(curNode);
+      let parentNode = curNode.parentElement;
+      let bar = this.$refs.bar_left;
+      const childElements = bar.children;
+      for (const childElement of childElements) {
+        childElement.style.backgroundColor = "white";
+      }
+      // console.log(bar);
+      parentNode.style.backgroundColor = "rgb(220,220,220)";
+    },
     goto(index) {
       this.$router.push(index)
     },
@@ -474,7 +494,8 @@ li :hover {
 .menu-item {
   font-size: 1em;
   color: #333333;
-  padding-left: 30px;
+  padding-left: 20px;
+  padding-right:20px;
   height:100%;
   display: block;
 }
@@ -482,7 +503,7 @@ li :hover {
 .menu-item > *{
   margin:auto;
   height: 70%;
-  margin-top: 18px;
+  margin-top: 15px;
 }
 
 .dropdown {
