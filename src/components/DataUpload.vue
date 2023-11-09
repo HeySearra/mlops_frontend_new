@@ -1,14 +1,20 @@
 <template>
   <div id="upload-frame">
     <el-form ref="datasetInfoRef" :rules="rules" :model="datasetInfo" label-width="80px" size="mini">
-      <el-form-item label="数据名称" prop="name">
+      <el-form-item label="类型" prop="type">
+        <el-radio-group v-model="datasetInfo.type" style="margin-bottom: 0">
+          <el-radio :label="true">动态数据</el-radio>
+          <el-radio :label="false">扩展静态数据</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item v-if="datasetInfo.type==true" label="数据名称" prop="name">
         <el-input v-model="datasetInfo.name"></el-input>
       </el-form-item>
       <el-form-item label="数据简介" prop="short_description">
         <el-input type="textarea" autosize placeholder="请输入数据简介" v-model="datasetInfo.short_description">
         </el-input>
       </el-form-item>
-      <el-form-item label="详细介绍" prop="long_description">
+      <el-form-item v-if="datasetInfo.type==true" label="详细介绍" prop="long_description">
         <el-input type="textarea" autosize placeholder="请输入数据详情介绍" v-model="datasetInfo.long_description">
         </el-input>
       </el-form-item>
@@ -47,6 +53,7 @@ export default {
         long_description: '',
         file: null,
         fileList: null,
+        type: true,
       },
       headUpload: {
         area: '',
@@ -68,7 +75,7 @@ export default {
           { required: true, message: '请上传文件', trigger: 'blur' }
         ],
         type: [
-          { required: true, message: '请选择特征类型', trigger: 'blur' }
+          { required: true, message: '请选择数据类型', trigger: 'blur' }
         ],
         // file: [
         //   {required: true, message: '请上传文件', trigger: 'blur' },
@@ -374,41 +381,74 @@ export default {
         }
       })
 
-      var params = new FormData()
-      params.append('file', this.file)
-      params.append('name', this.datasetInfo.name)
-      params.append('short_description', this.datasetInfo.short_description)
-      params.append('long_description', this.datasetInfo.long_description)
-      params.append('process_code', "")
-      params.append('father_name', "")
+      if(that.datasetInfo.type == true){
+          var params = new FormData()
+          params.append('file', this.file)
+          params.append('name', this.datasetInfo.name)
+          params.append('short_description', this.datasetInfo.short_description)
+          params.append('long_description', this.datasetInfo.long_description)
 
-      this.$http_wang({
-        url: "/predata/",
-        method: "post",
-        data: params,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          // 'X-CSRFToken': that.getCookie('csrftoken'),
-        },
-      }).then((res) => {
-        console.log("ok!", res)
-        if (res.status == 200) {
-          console.log("upload done")
-          console.log(res)
-          that.upload_data_df = res
-          that.$notify({
-            title: '上传成功',
-            duration: 5000
-          });
-          that.$router.go(0)
-        } else {
-          that.$notify.error({
-            title: '服务器失败 :/predata/ post',
-            message: res.response,
-            duration: 5000
-          });
-        }
-      })
+          this.$http_wang({
+            url: "/predata/create_dynamic",
+            method: "post",
+            data: params,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              // 'X-CSRFToken': that.getCookie('csrftoken'),
+            },
+          }).then((res) => {
+            console.log("ok!", res)
+            if (res.status == 200) {
+              console.log("upload done")
+              console.log(res)
+              that.upload_data_df = res
+              that.$notify({
+                title: '上传成功',
+                duration: 5000
+              });
+              that.$router.go(0)
+            } else {
+              that.$notify.error({
+                title: '服务器失败 :/predata/create_dynamic post',
+                message: res.response,
+                duration: 5000
+              });
+            }
+          })
+      }
+      else{
+        var params = new FormData()
+          params.append('file', this.file)
+          params.append('description', this.datasetInfo.short_description)
+
+          this.$http_wang({
+            url: "/predata/create_static",
+            method: "post",
+            data: params,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              // 'X-CSRFToken': that.getCookie('csrftoken'),
+            },
+          }).then((res) => {
+            console.log("ok!", res)
+            if (res.status == 200) {
+              console.log("upload done")
+              console.log(res)
+              that.upload_data_df = res
+              that.$notify({
+                title: '上传成功',
+                duration: 5000
+              });
+              that.$router.go(0)
+            } else {
+              that.$notify.error({
+                title: '服务器失败 :/predata/create_static post',
+                message: res.response,
+                duration: 5000
+              });
+            }
+          })
+      }
     },
     handleRemoveFile() {
       this.show_head_upload = false;
