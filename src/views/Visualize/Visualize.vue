@@ -273,6 +273,7 @@ export default {
       patientStat: {
         PDID: '', GENDER: '', BIRTH_DATE: '', AGE: '', ORIGIN_DISEASE: '', DEATH: '', DEATH_AGE: '', DEATH_REASON: '', HEIGHT: '', WEIGHT: ''
       },
+      output_data: [],
     }
   },
 
@@ -535,7 +536,6 @@ export default {
       //       }
       //   }
       // }
-      let output_data = {};
       this.figureClass = 'line';
       requestData = {
         dataset_id: this.dataset_id,
@@ -549,6 +549,8 @@ export default {
         method: "post",
         data: requestData
       }).then((res) => {
+        let resdata = res.data.data.figureData;
+        this.figureData2 = resdata;
         this.$http_vis({
           url: "/interpretability/result/single/",
           method: "post", 
@@ -558,20 +560,21 @@ export default {
                   "sample_id": this.patientId
                 }
         }).then((res) => {
-          console.log(res.data.data);
-          output_data = res.data.data;
+          this.output_data = res.data.data.output;
+          console.log(this.output_data);
+          this.figureData2.yFeature.push({
+            name: "模型输出",
+            data: this.output_data
+          })
+          console.log(this.figureData2);
+          let myChart = this.patientChart;
+          myChart.clear();
+          if (this.figureClass == "line" || this.figureClass == "bar") {
+            this.showLineBar2();
+          }
+        });
         })
         // console.log(res.data.data.figureData);
-        let resdata = res.data.data.figureData;
-        this.figureData2 = resdata;
-        // this.figureData2.yFeature.push(output_data);
-        // console.log(this.figureData);
-        let myChart = this.patientChart;
-        myChart.clear();
-        if (this.figureClass == "line" || this.figureClass == "bar") {
-          this.showLineBar2();
-        }
-      });
     },
     showLineBar() {
       let myChart = this.figureChart;
