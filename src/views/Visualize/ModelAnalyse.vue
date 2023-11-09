@@ -97,6 +97,7 @@
   
   
     mounted() {
+      this.$root.$emit('selectFunc', "modelana");
       this.singleChart = echarts.init(this.$refs.single_chart);
     },
   

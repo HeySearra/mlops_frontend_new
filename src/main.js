@@ -36,6 +36,9 @@ Vue.prototype.$bus = new Vue() // 总线
 
 new Vue({
   router,
+  provide: {
+    EventBus: new Vue()
+  },
   render: h => h(App),
 }).$mount('#app')
 

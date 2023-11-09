@@ -261,6 +261,7 @@ export default {
 
 
   mounted() {
+    this.$root.$emit('selectFunc', "visualize");
     this.figureChart = echarts.init(this.$refs.explore_chart);
     this.initData();
   },
@@ -310,7 +311,6 @@ export default {
         })
     },
     getDatasetId(val){
-      
       let url = "/predata/" + this.cur_dataset_id + "/";
       this.$http_vis({
         url: url,

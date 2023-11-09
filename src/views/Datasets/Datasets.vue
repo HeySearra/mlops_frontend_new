@@ -101,6 +101,8 @@ export default {
 
 
   mounted() {
+    console.log("pass func");
+    this.$root.$emit('selectFunc', "datasets");
     if (!this.login_manager.get()) {
       this.$notify.warning({
         title: '未登录，请先登录账号',
