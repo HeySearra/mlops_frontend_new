@@ -1,21 +1,26 @@
 <template>
   <div class="container">
-    <el-form class="dataset-list-form-container">
-      <div class="form-row">
-        <el-form-item label="选择数据集">
-          <el-select v-model="cur_dataset_id" placeholder="选择数据集" @change="getDatasetId($event)">
-            <el-option v-for="item in datasetList" :value="item.id" :key="item.id" :label="item.name"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="选择子数据集">
-          <el-select v-model="dataset_id" placeholder="选择子数据集" @change="getChildDatasetId($event)">
-            <el-option v-for="item in childDatasetList" :value="item.children_name" :key="item.children_id"
-              :label="item.children_name"></el-option>
-          </el-select>
-        </el-form-item>
+    <div class="dataset-header">
+      <div id="title-container">
+        <span class="title">{{ this.cur_dataset_name }}</span>
       </div>
+      <el-form id="form-container" class="dataset-list-form-container">
+        <div class="form-row">
+          <el-form-item label="选择数据集">
+            <el-select v-model="cur_dataset_id" placeholder="选择数据集" @change="getDatasetId($event)">
+              <el-option v-for="item in datasetList" :value="item.id" :key="item.id" :label="item.name"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="选择子数据集">
+            <el-select v-model="dataset_id" placeholder="选择子数据集" @change="getChildDatasetId($event)">
+              <el-option v-for="item in childDatasetList" :value="item.children_name" :key="item.children_id"
+                :label="item.children_name"></el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+      </el-form>
+    </div>
 
-    </el-form>
     <el-descriptions title="数据集基本信息" class="dataset-info" v-loading="datasetLoading">
       <el-descriptions-item label="数据集ID">{{ datasetInfo.id }}</el-descriptions-item>
       <el-descriptions-item label="数据集任务">{{ datasetInfo.task }}</el-descriptions-item>
@@ -335,6 +340,11 @@ export default {
         this.datasetInfo = res.data;
         this.datasetInfo.created = this.formatToSecond(this.datasetInfo.created);
         let data = res.data;
+        this.cur_dataset_name = data.name;
+        // console.log("111111111111111");
+        // console.log(data);
+        // console.log(this.cur_dataset_name);
+        // console.log("222222222222222");
         this.childDatasetList = [];
         this.childDatasetList.push({
           children_id: this.cur_dataset_id,
@@ -1012,4 +1022,29 @@ a {
   margin-top: 15px;
 }
 
+.title {
+  cursor: pointer;
+  font-size: 30px;
+  font-family: SimHei-Normal;
+  font-weight: bold;
+  text-align: LEFT;
+  color: #5194e9;
+  line-height: 30px;
+}
+
+.dataset-header{
+  height: 100px;
+  position:relative;
+}
+
+#title-container{
+  width: 40%;
+  float: left;
+  margin-top: 20px;
+}
+
+
+#form-container{
+  float:right;
+}
 </style>
