@@ -68,24 +68,7 @@
     </el-dialog>
 
 
-    <div class="patient-stat">
-      <el-input placeholder="请输入患者ID" v-model="patientId" class="input-with-select">
-        <el-button slot="append" icon="el-icon-search" @click="getPatient()"></el-button>
-      </el-input>
-      <el-descriptions title="患者基本信息">
-        <el-descriptions-item label="ID">{{ patientStat.PDID }}</el-descriptions-item>
-        <el-descriptions-item label="性别">{{ patientStat.GENDER }}</el-descriptions-item>
-        <el-descriptions-item label="年龄">{{ patientStat.AGE }}</el-descriptions-item>
-        <el-descriptions-item label="身高">{{ patientStat.HEIGHT }}</el-descriptions-item>
-        <el-descriptions-item label="体重">{{ patientStat.WEIGHT }}</el-descriptions-item>
-        <el-descriptions-item label="原始疾病">{{ patientStat.ORIGIN_DISEASE }}</el-descriptions-item>
-        <el-descriptions-item label="是否死亡">{{ patientStat.DEATH }}</el-descriptions-item>
-        <el-descriptions-item label="死亡年龄">{{ patientStat.DEATH_AGE }}</el-descriptions-item>
-        <el-descriptions-item label="死亡原因">{{ patientStat.DEATH_REASON }}</el-descriptions-item>
-      </el-descriptions>
-    </div>
-
-    <!-- <el-form>
+    <el-form>
       <div style="margin-top: 40px;">
         <el-row>
           <el-col :span="6">
@@ -124,26 +107,44 @@
           </el-col>
         </el-row>
       </div>
-    </el-form> -->
+    </el-form>
+    <div ref="explore_chart" :style="{ width: '100%', height: '500px' }"></div>
+
+    <div class="patient-stat">
+      <el-input placeholder="请输入患者ID" v-model="patientId" class="input-with-select">
+        <el-button slot="append" icon="el-icon-search" @click="getPatient()"></el-button>
+      </el-input>
+      <el-descriptions title="患者基本信息">
+        <el-descriptions-item label="ID">{{ patientStat.PDID }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ patientStat.GENDER }}</el-descriptions-item>
+        <el-descriptions-item label="年龄">{{ patientStat.AGE }}</el-descriptions-item>
+        <el-descriptions-item label="身高">{{ patientStat.HEIGHT }}</el-descriptions-item>
+        <el-descriptions-item label="体重">{{ patientStat.WEIGHT }}</el-descriptions-item>
+        <el-descriptions-item label="原始疾病">{{ patientStat.ORIGIN_DISEASE }}</el-descriptions-item>
+        <el-descriptions-item label="是否死亡">{{ patientStat.DEATH }}</el-descriptions-item>
+        <el-descriptions-item label="死亡年龄">{{ patientStat.DEATH_AGE }}</el-descriptions-item>
+        <el-descriptions-item label="死亡原因">{{ patientStat.DEATH_REASON }}</el-descriptions-item>
+      </el-descriptions>
+    </div>
     <el-form>
       <div style="margin-top: 40px;">
         <el-row>
           <el-col :span="6">
-            <el-form-item :label=secondDim>
-              <el-select multiple v-model="yFeature" :placeholder=secondDim :disabled=yDisabled>
+            <el-form-item :label=secondDim2>
+              <el-select multiple v-model="yFeature2" :placeholder=secondDim2>
                 <el-option v-for="item in featureList" :value="item" :key="item" :label="item"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="3">
             <el-form-item>
-              <el-button @click="showFigure()">生成</el-button>
+              <el-button @click="showFigure2()">生成</el-button>
             </el-form-item>
           </el-col>
         </el-row>
       </div>
     </el-form>
-    <div ref="explore_chart" :style="{ width: '100%', height: '500px' }"></div>
+    <div ref="patient_chart" :style="{ width: '100%', height: '500px' }"></div>
 
     <el-dialog title="过滤" :visible.sync="filterVisible" width="60%" :before-close="handleClose">
       <span>请输入过滤信息，格式为[字段名]==***，如pdid==98</span>
@@ -233,15 +234,18 @@ export default {
         }
       },
       firstDim: "横轴",
-      secondDim: "特征",
+      secondDim: "纵轴",
+      secondDim2: "特征",
       figureChart: "",
       figureClass: "",
       featureList: ["pdid", "尿素", "血蛋白", "日期"],
       xFeature: "",
       yFeature: [],
+      yFeature2: [],
       yDisabled: false,
       figureData: {
       },
+      figureData2: {},
       filterVisible: false,
       filterString: "",
       filterFeature: "",
@@ -281,6 +285,7 @@ export default {
   mounted() {
     this.$root.$emit('selectFunc', "visualize");
     this.figureChart = echarts.init(this.$refs.explore_chart);
+    this.patientChart = echarts.init(this.$refs.patient_chart);
     this.initData();
   },
 
@@ -472,6 +477,46 @@ export default {
     showFigure() {
       // console.log(this.dataset_id, this.xFeature, this.yFeature, this.figureClass, this.filterString);
       let requestData = {};
+      if (this.figureClass=="line") {
+        requestData = {
+          dataset_id: this.dataset_id,
+            x_feature: this.xFeature,
+            y_features: this.yFeature,
+            pic_type: this.figureClass,
+            filter_str: this.filterString
+        };
+      }else {
+        requestData = {
+          dataset_id: this.dataset_id,
+            x_feature: this.xFeature,
+            pic_type: "hist",
+            other_args:  {
+              bins_num: 10
+            }
+        }
+      }
+      this.$http_vis({
+        url: "/visualcomp/comp/data/",
+        method: "post",
+        data: requestData
+      }).then((res) => {
+        // console.log(res.data.data.figureData);
+        let resdata = res.data.data.figureData;
+        this.figureData = resdata;
+        // console.log(this.figureData);
+        let myChart = this.figureChart;
+        myChart.clear();
+        if (this.figureClass == "pie") {
+          this.showPie();
+        }
+        if (this.figureClass == "line" || this.figureClass == "bar") {
+          this.showLineBar();
+        }
+      });
+    },
+    showFigure2() {
+      // console.log(this.dataset_id, this.xFeature, this.yFeature, this.figureClass, this.filterString);
+      let requestData = {};
       // if (this.figureClass=="line") {
       //   requestData = {
       //     dataset_id: this.dataset_id,
@@ -490,11 +535,12 @@ export default {
       //       }
       //   }
       // }
+      let output_data = {};
       this.figureClass = 'line';
       requestData = {
         dataset_id: this.dataset_id,
         x_feature: 'DATE',
-        y_features: this.yFeature,
+        y_features: this.yFeature2,
         pic_type: 'line',
         filter_str: 'PDID==' + this.patientId
       };
@@ -503,17 +549,27 @@ export default {
         method: "post",
         data: requestData
       }).then((res) => {
+        this.$http_vis({
+          url: "/interpretability/result/single/",
+          method: "post", 
+          data: {
+                  "dataset_id": "北医三院动态数据第一版_训练用",
+                  "model_id": "d1_model1",
+                  "sample_id": this.patientId
+                }
+        }).then((res) => {
+          console.log(res.data.data);
+          output_data = res.data.data;
+        })
         // console.log(res.data.data.figureData);
         let resdata = res.data.data.figureData;
-        this.figureData = resdata;
+        this.figureData2 = resdata;
+        // this.figureData2.yFeature.push(output_data);
         // console.log(this.figureData);
-        let myChart = this.figureChart;
+        let myChart = this.patientChart;
         myChart.clear();
-        if (this.figureClass == "pie") {
-          this.showPie();
-        }
         if (this.figureClass == "line" || this.figureClass == "bar") {
-          this.showLineBar();
+          this.showLineBar2();
         }
       });
     },
@@ -566,6 +622,69 @@ export default {
       let grid = {
         top: '15%',
         right: (this.figureData.yFeature.length - 1) * 90,
+        containLabel: true
+      };
+      myChart.setOption({
+        xAxis: xAxis, yAxis: yAxis, series: series, legend: legend, grid: grid,
+        tooltip: {
+          trigger: 'axis'
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {}
+          }
+        }
+      });
+    },
+    showLineBar2() {
+      let myChart = this.patientChart;
+      let xAxis = {
+        type: "category",
+        data: this.figureData2.xFeature.data
+      };
+      let yAxis = [];
+      for (let i in this.figureData2.yFeature) {
+        yAxis.push({
+          type: 'value',
+          name: this.figureData2.yFeature[i].name,
+          position: 'right',
+          offset: i * 90,
+          nameLocation: 'end',
+          scale: true,
+          axisTick: {
+            show: true
+          },
+          splitLine: {
+            show: false
+          },
+          axisLine: {
+            show: true,
+            onZero: false
+          },
+          axisLabel: {
+            show: true,
+            formatter(params) {
+              return (params).toFixed(0)
+            }
+          }
+        })
+      }
+      let legend = {
+        data: []
+      }
+      let series = [];
+      for (let i in this.figureData2.yFeature) {
+        legend.data.push(this.figureData2.yFeature[i].name);
+        series.push({
+          data: this.figureData2.yFeature[i].data,
+          name: this.figureData2.yFeature[i].name,
+          type: this.figureClass,
+          yAxisIndex: i
+        });
+      }
+      let grid = {
+        top: '15%',
+        right: (this.figureData2.yFeature.length - 1) * 90,
         containLabel: true
       };
       myChart.setOption({
