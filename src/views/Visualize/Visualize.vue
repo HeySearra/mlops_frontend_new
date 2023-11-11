@@ -67,23 +67,38 @@
       </el-table>
     </el-dialog>
 
+    <el-card class="box-card" >
+      <div class="patient-stat">
+        <el-input placeholder="请输入患者ID" v-model="patientId" class="input-with-select" style="width: 100%;">
+          <el-button slot="append" icon="el-icon-search" @click="getPatient()"></el-button>
+        </el-input>
+        <div class="patient-info">
+          <el-avatar icon="el-icon-user-solid" :size="50" class="patient-avator"></el-avatar>
+          <h3>患者基本信息</h3>
+          <p><span>ID:</span>{{ patientStat.PDID }}</p>
+          <p><span>性别:</span>{{ patientStat.GENDER }}</p>
+          <p><span>年龄:</span>{{ patientStat.AGE }}</p>
+          <p><span>身高:</span>{{ patientStat.HEIGHT }}</p>
+          <p><span>体重:</span>{{ patientStat.WEIGHT }}</p>
+          <p><span>原始疾病:</span>{{ patientStat.ORIGIN_DISEASE }}</p>
+          <p><span>是否死亡:</span>{{ patientStat.DEATH }}</p>
+          <p><span>死亡原因:</span>{{ patientStat.DEATH_REASON }}</p>
+        </div>
+        <!-- <el-descriptions title="患者基本信息">
+          <el-avatar icon="el-icon-user-solid"></el-avatar>
+          <el-descriptions-item label="ID">{{ patientStat.PDID }}</el-descriptions-item>
+          <el-descriptions-item label="性别">{{ patientStat.GENDER }}</el-descriptions-item>
+          <el-descriptions-item label="年龄">{{ patientStat.AGE }}</el-descriptions-item>
+          <el-descriptions-item label="身高">{{ patientStat.HEIGHT }}</el-descriptions-item>
+          <el-descriptions-item label="体重">{{ patientStat.WEIGHT }}</el-descriptions-item>
+          <el-descriptions-item label="原始疾病">{{ patientStat.ORIGIN_DISEASE }}</el-descriptions-item>
+          <el-descriptions-item label="是否死亡">{{ patientStat.DEATH }}</el-descriptions-item>
+          <el-descriptions-item label="死亡年龄">{{ patientStat.DEATH_AGE }}</el-descriptions-item>
+          <el-descriptions-item label="死亡原因">{{ patientStat.DEATH_REASON }}</el-descriptions-item>
+        </el-descriptions> -->
+      </div>
+    </el-card>
 
-    <div class="patient-stat">
-      <el-input placeholder="请输入患者ID" v-model="patientId" class="input-with-select">
-        <el-button slot="append" icon="el-icon-search" @click="getPatient()"></el-button>
-      </el-input>
-      <el-descriptions title="患者基本信息">
-        <el-descriptions-item label="ID">{{ patientStat.PDID }}</el-descriptions-item>
-        <el-descriptions-item label="性别">{{ patientStat.GENDER }}</el-descriptions-item>
-        <el-descriptions-item label="年龄">{{ patientStat.AGE }}</el-descriptions-item>
-        <el-descriptions-item label="身高">{{ patientStat.HEIGHT }}</el-descriptions-item>
-        <el-descriptions-item label="体重">{{ patientStat.WEIGHT }}</el-descriptions-item>
-        <el-descriptions-item label="原始疾病">{{ patientStat.ORIGIN_DISEASE }}</el-descriptions-item>
-        <el-descriptions-item label="是否死亡">{{ patientStat.DEATH }}</el-descriptions-item>
-        <el-descriptions-item label="死亡年龄">{{ patientStat.DEATH_AGE }}</el-descriptions-item>
-        <el-descriptions-item label="死亡原因">{{ patientStat.DEATH_REASON }}</el-descriptions-item>
-      </el-descriptions>
-    </div>
 
     <!-- <el-form>
       <div style="margin-top: 40px;">
@@ -144,6 +159,8 @@
       </div>
     </el-form>
     <div ref="explore_chart" :style="{ width: '100%', height: '500px' }"></div>
+
+
 
     <el-dialog title="过滤" :visible.sync="filterVisible" width="60%" :before-close="handleClose">
       <span>请输入过滤信息，格式为[字段名]==***，如pdid==98</span>
@@ -1012,6 +1029,8 @@ a {
 
 .patient-stat {
   margin-top: 15px;
+  border: 1px solid rgba(220,220,220);
+  border-radius: 5px;
 }
 
 .el-input {
@@ -1032,19 +1051,45 @@ a {
   line-height: 30px;
 }
 
-.dataset-header{
+.dataset-header {
   height: 100px;
-  position:relative;
+  position: relative;
 }
 
-#title-container{
+#title-container {
   width: 40%;
   float: left;
   margin-top: 20px;
 }
 
 
-#form-container{
-  float:right;
+#form-container {
+  float: right;
+}
+
+.box-card {
+  width: 50%;
+  height: 800px;
+  border: 1px solid rgba(220,220,220);
+  border-radius: 5px;
+}
+.patient-info{
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  font-size: 16px;
+}
+
+.patient-info p{
+  margin-left: 50px;
+}
+.patient-info span{
+  color: #606266;
+  margin-right: 30px;
+  font-weight: bold; 
+}
+
+.patient-avator{
+  margin-top: 20px;
+  margin:auto;
+  display: block;
 }
 </style>
