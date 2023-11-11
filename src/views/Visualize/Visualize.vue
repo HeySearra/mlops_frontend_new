@@ -67,22 +67,24 @@
       </el-table>
     </el-dialog>
 
-    <el-card class="box-card" >
+    <el-card class="box-card" id="info-card" >
       <div class="patient-stat">
         <el-input placeholder="请输入患者ID" v-model="patientId" class="input-with-select" style="width: 100%;">
           <el-button slot="append" icon="el-icon-search" @click="getPatient()"></el-button>
         </el-input>
         <div class="patient-info">
-          <el-avatar icon="el-icon-user-solid" :size="50" class="patient-avator"></el-avatar>
-          <h3>患者基本信息</h3>
-          <p><span>ID:</span>{{ patientStat.PDID }}</p>
-          <p><span>性别:</span>{{ patientStat.GENDER }}</p>
-          <p><span>年龄:</span>{{ patientStat.AGE }}</p>
-          <p><span>身高:</span>{{ patientStat.HEIGHT }}</p>
-          <p><span>体重:</span>{{ patientStat.WEIGHT }}</p>
-          <p><span>原始疾病:</span>{{ patientStat.ORIGIN_DISEASE }}</p>
-          <p><span>是否死亡:</span>{{ patientStat.DEATH }}</p>
-          <p><span>死亡原因:</span>{{ patientStat.DEATH_REASON }}</p>
+          <el-avatar icon="el-icon-user-solid" :size="70" class="patient-avator" style="margin-top: 30px;" :src=this.patient_pic></el-avatar>
+          <div class="des-info">
+            <h3 style="margin-left: 20px;">患者基本信息</h3>
+            <p><span>ID:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{patientStat.PDID }}</p>
+            <p><span>性别:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.GENDER }}</p>
+            <p><span>年龄:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.AGE }}</p>
+            <p><span>身高:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.HEIGHT }}</p>
+            <p><span>体重:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.WEIGHT }}</p>
+            <p><span>原始疾病:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.ORIGIN_DISEASE }}</p>
+            <p><span>是否死亡:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.DEATH }}</p>
+            <p><span>死亡原因:</span>&nbsp;&nbsp;&nbsp;&nbsp;{{ patientStat.DEATH_REASON }}</p>
+          </div>
         </div>
         <!-- <el-descriptions title="患者基本信息">
           <el-avatar icon="el-icon-user-solid"></el-avatar>
@@ -140,25 +142,27 @@
         </el-row>
       </div>
     </el-form> -->
-    <el-form>
-      <div style="margin-top: 40px;">
-        <el-row>
-          <el-col :span="6">
-            <el-form-item :label=secondDim>
-              <el-select multiple v-model="yFeature" :placeholder=secondDim :disabled=yDisabled>
-                <el-option v-for="item in featureList" :value="item" :key="item" :label="item"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="3">
-            <el-form-item>
-              <el-button @click="showFigure()">生成</el-button>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </div>
-    </el-form>
-    <div ref="explore_chart" :style="{ width: '100%', height: '500px' }"></div>
+    <el-card id="fea-pic" class="box-card" style="float: right;">
+      <el-form style="margin-top: 15px;">
+        <div >
+          <el-row>
+            <el-col style="width: 30%;">
+              <el-form-item :label=secondDim>
+                <el-select multiple v-model="yFeature" :placeholder=secondDim :disabled=yDisabled collapse-tags style="width: 80%;">
+                  <el-option v-for="item in featureList" :value="item" :key="item" :label="item"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col style="width: 30%;">
+              <el-form-item>
+                <el-button @click="showFigure()">生成</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </div>
+      </el-form>
+      <div ref="explore_chart" class="chart-style"></div>
+    </el-card>
 
 
 
@@ -193,6 +197,7 @@
 <script>
 import { features } from 'process';
 import DatasetStatistic from "../../components/DatasetStatistic";
+import patient_pic from "@/assets/patient.jpg"
 
 const echarts = require('echarts');
 export default {
@@ -218,6 +223,7 @@ export default {
       limitNum: 2,
       MultiTestShow: false,
       MultiTestTable: [],
+      patient_pic: patient_pic,
       figureList: [
         {
           name: "折线图",
@@ -1029,7 +1035,6 @@ a {
 
 .patient-stat {
   margin-top: 15px;
-  border: 1px solid rgba(220,220,220);
   border-radius: 5px;
 }
 
@@ -1068,14 +1073,21 @@ a {
 }
 
 .box-card {
-  width: 50%;
   height: 800px;
-  border: 1px solid rgba(220,220,220);
+  /* border: 1px solid rgba(220,220,220); */
   border-radius: 5px;
+  float: left;
+  margin-bottom: 30px;
+}
+#info-card{
+  width: 35%;
+}
+#fea-pic{
+  width: 64%;
 }
 .patient-info{
   font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .patient-info p{
@@ -1083,7 +1095,6 @@ a {
 }
 .patient-info span{
   color: #606266;
-  margin-right: 30px;
   font-weight: bold; 
 }
 
@@ -1091,5 +1102,21 @@ a {
   margin-top: 20px;
   margin:auto;
   display: block;
+}
+
+.des-info{
+  width: 95%;
+  padding: 10px;
+  margin:auto;
+  margin-top: 30px;
+  border-radius: 10px;
+  background-color: rgb(250, 250, 250);
+}
+
+.chart-style{
+  width: 100%;
+  height: 500px;
+  margin-top: 100px;
+  margin-left: 0;
 }
 </style>
